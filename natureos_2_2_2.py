@@ -16,19 +16,51 @@ st.set_page_config(
 )
 
 research_mode = os.environ.get("NATUREOS_MODE") == "research"
+if not research_mode:
+    st.markdown("""
+        <style>
+        [data-testid="stMainBlockContainer"] { max-width: 1050px; padding-top: 3rem; }
+        .natureos-hero {
+            background: linear-gradient(115deg, #102e26, #205344);
+            border: 1px solid #397463; border-radius: 22px;
+            padding: clamp(22px, 5vw, 52px); margin: 0.4rem 0 1.5rem;
+            color: #f3faf6; font-family: "Inter", system-ui, sans-serif;
+        }
+        .natureos-hero h1 {
+            color: #f3faf6; font-family: inherit;
+            font-size: clamp(2.3rem, 8vw, 4.4rem);
+            letter-spacing: -0.045em; line-height: 1.1; margin: 0 0 .6rem; padding: 0;
+        }
+        .natureos-hero p { color: #daf0e6; max-width: 54ch; margin: 0 0 .75rem; }
+        .natureos-hero .natureos-author { color: #f3faf6; margin: 1rem 0 0; font-size: .9rem; }
+        [data-testid="stBaseButton-primary"] {
+            background: #176148; border-color: #176148; color: #fff; border-radius: 10px;
+        }
+        [data-testid="stBaseButton-primary"]:hover { background: #104c38; border-color: #104c38; color: #fff; }
+        .natureos-footer { border-top: 1px solid #739286; padding-top: 1rem; margin-top: 2rem; font-size: .875rem; }
+        </style>
+    """, unsafe_allow_html=True)
 english = not research_mode and st.radio(
     "Dil / Language", ("Türkçe", "English"), horizontal=True
 ) == "English"
 
-st.title(f"🌿 NatureOS {NATUREOS_VERSION}")
-st.markdown("**Ayşe Meriç Yazıcı**")
-st.subheader("Nature-Inspired Innovation Engine")
-st.write(
-    "A platform for innovation and problem-solving inspired by biological mechanisms."
-    if english else
-    "Doğanın biyolojik mekanizmalarından ilham alan inovasyon ve problem çözme platformu."
-)
-st.divider()
+if research_mode:
+    st.title(f"🌿 NatureOS {NATUREOS_VERSION}")
+    st.markdown("**Ayşe Meriç Yazıcı**")
+    st.subheader("Nature-Inspired Innovation Engine")
+    st.write("Doğanın biyolojik mekanizmalarından ilham alan inovasyon ve problem çözme platformu.")
+    st.divider()
+else:
+    intro = (
+        "Explore how biological mechanisms can inform solutions to design challenges."
+        if english else
+        "Biyolojik mekanizmaların tasarım sorunlarına nasıl çözüm sunabileceğini keşfedin."
+    )
+    st.markdown(
+        f'<section class="natureos-hero"><h1>NatureOS</h1><p>{intro}</p>'
+        '<p class="natureos-author">Ayşe Meriç Yazıcı</p></section>',
+        unsafe_allow_html=True,
+    )
 
 # Biyolojik bilgi tabanı
 biological_database = [
@@ -3938,7 +3970,7 @@ def render_discovery():
 
 
 def render_english_demo(*, examples_only=False):
-    st.header("Explore a business problem")
+    st.header("Free demo" if examples_only else "Explore a business problem")
     if not examples_only:
         st.markdown("**Ayşe Meriç Yazıcı**")
     examples = [
@@ -3951,7 +3983,7 @@ def render_english_demo(*, examples_only=False):
     else:
         example = st.selectbox("Example", ["Write my own", *examples])
         problem = st.text_area("Describe the problem", value="" if example == "Write my own" else example, key=f"english_{example}")
-    if not st.button("Find biological models"):
+    if not st.button("Find biological models", type="primary"):
         return
     normalized = f" {normalize_text(problem)} "
     matches = []
@@ -4112,10 +4144,14 @@ def render_public_demo():
         "Ambalaj": "Cam kavanozlarımız kargoda birbirine çarpıp çatlıyor.",
         "Robotik": "Robot tutucu hassas parçaları eziyor.",
     }
-    case = st.selectbox("Örnek problem seçin", list(examples))
+    icons = {"Su arıtma": "💧", "Ambalaj": "📦", "Robotik": "🤖"}
+    case = st.selectbox(
+        "Örnek problem seçin", list(examples), format_func=lambda name: f"{icons[name]} {name}"
+    )
     problem = examples[case]
-    st.write(problem)
-    if st.button("Örneği analiz et"):
+    with st.container(border=True):
+        st.write(problem)
+    if st.button("Örneği analiz et", type="primary"):
         matches = analyze_models(problem)
         if not matches:
             st.info("Bu örnek için eşleşme bulunamadı.")
@@ -4164,7 +4200,8 @@ if not research_mode:
         render_english_demo(examples_only=True)
     else:
         render_public_demo()
-    st.caption("All rights reserved." if english else "Her hakkı saklıdır.")
+    notice = "All rights reserved." if english else "Her hakkı saklıdır."
+    st.markdown(f'<footer class="natureos-footer">{notice}</footer>', unsafe_allow_html=True)
     st.stop()
 
 
