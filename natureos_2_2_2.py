@@ -15,15 +15,19 @@ st.set_page_config(
     layout="wide"
 )
 
+research_mode = os.environ.get("NATUREOS_MODE") == "research"
+english = not research_mode and st.radio(
+    "Dil / Language", ("Türkçe", "English"), horizontal=True
+) == "English"
+
 st.title(f"🌿 NatureOS {NATUREOS_VERSION}")
 st.markdown("**Ayşe Meriç Yazıcı**")
 st.subheader("Nature-Inspired Innovation Engine")
-
 st.write(
-    "Doğanın biyolojik mekanizmalarından "
-    "ilham alan inovasyon ve problem çözme platformu."
+    "A platform for innovation and problem-solving inspired by biological mechanisms."
+    if english else
+    "Doğanın biyolojik mekanizmalarından ilham alan inovasyon ve problem çözme platformu."
 )
-
 st.divider()
 
 # Biyolojik bilgi tabanı
@@ -3935,7 +3939,8 @@ def render_discovery():
 
 def render_english_demo(*, examples_only=False):
     st.header("Explore a business problem")
-    st.markdown("**Ayşe Meriç Yazıcı**")
+    if not examples_only:
+        st.markdown("**Ayşe Meriç Yazıcı**")
     examples = [
         "The lightweight frame buckles.",
         "Our robot gripper crushes fragile parts.",
@@ -4122,29 +4127,44 @@ def render_public_demo():
             show_scientific_evidence(name)
 
 
-def render_paid_pilot():
-    st.header("Ücretli kurumsal pilot")
-    st.write(
-        "İşletmenizin bir tasarım problemini birlikte ele alalım. "
-        "Ayşe Meriç Yazıcı, NatureOS önerilerini değerlendirerek işletmenize özel "
-        "bir rapor ve ilk deneme planı hazırlar."
-    )
-    st.write("Kapsam ve fiyat, görüşme sonrasında teklif olarak paylaşılır.")
-    st.markdown(
-        "[Pilot için e-posta gönder]"
-        "(mailto:aysemericyazici@hotmail.com?subject=NatureOS%20kurumsal%20pilot)"
-    )
+def render_paid_pilot(*, english=False):
+    if english:
+        st.header("Paid corporate pilot")
+        st.write(
+            "Bring us a design challenge from your business. Ayşe Meriç Yazıcı "
+            "will review NatureOS recommendations and prepare a tailored report "
+            "and initial test plan."
+        )
+        st.write("Scope and pricing are provided in a proposal after the initial discussion.")
+        label = "Email us about a pilot"
+        subject = "NatureOS%20corporate%20pilot"
+    else:
+        st.header("Ücretli kurumsal pilot")
+        st.write(
+            "İşletmenizin bir tasarım problemini birlikte ele alalım. "
+            "Ayşe Meriç Yazıcı, NatureOS önerilerini değerlendirerek işletmenize özel "
+            "bir rapor ve ilk deneme planı hazırlar."
+        )
+        st.write("Kapsam ve fiyat, görüşme sonrasında teklif olarak paylaşılır.")
+        label = "Pilot için e-posta gönder"
+        subject = "NatureOS%20kurumsal%20pilot"
+    st.markdown(f"[{label}](mailto:aysemericyazici@hotmail.com?subject={subject})")
 
 
-if os.environ.get("NATUREOS_MODE") != "research":
-    page = st.sidebar.radio("NatureOS", ("Ücretsiz demo", "Ücretli kurumsal pilot", "English demo"))
-    if page == "Ücretli kurumsal pilot":
-        render_paid_pilot()
-    elif page == "English demo":
+if not research_mode:
+    labels = ("Free demo", "Paid corporate pilot") if english else (
+        "Ücretsiz demo", "Ücretli kurumsal pilot"
+    )
+    page = st.sidebar.radio(
+        "NatureOS", ("demo", "pilot"), format_func=dict(zip(("demo", "pilot"), labels)).__getitem__
+    )
+    if page == "pilot":
+        render_paid_pilot(english=english)
+    elif english:
         render_english_demo(examples_only=True)
     else:
         render_public_demo()
-    st.caption("Her hakkı saklıdır.")
+    st.caption("All rights reserved." if english else "Her hakkı saklıdır.")
     st.stop()
 
 
