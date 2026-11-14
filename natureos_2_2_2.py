@@ -1,6 +1,7 @@
 
 import csv
 import io
+import os
 import re
 import unicodedata
 
@@ -3932,12 +3933,19 @@ def render_discovery():
             show_scientific_evidence(organism, heading=False)
 
 
-def render_english_demo():
+def render_english_demo(*, examples_only=False):
     st.header("Explore a business problem")
-    st.caption("English demo with eight biological models. Enter a problem or try an example.")
     st.markdown("**Ayşe Meriç Yazıcı**")
-    example = st.selectbox("Example", ["Write my own", "The lightweight frame buckles.", "Our robot gripper crushes fragile parts.", "The sensor triggers too easily."])
-    problem = st.text_area("Describe the problem", value="" if example == "Write my own" else example, key=f"english_{example}")
+    examples = [
+        "The lightweight frame buckles.",
+        "Our robot gripper crushes fragile parts.",
+        "The sensor triggers too easily.",
+    ]
+    if examples_only:
+        problem = st.selectbox("Example", examples)
+    else:
+        example = st.selectbox("Example", ["Write my own", *examples])
+        problem = st.text_area("Describe the problem", value="" if example == "Write my own" else example, key=f"english_{example}")
     if not st.button("Find biological models"):
         return
     normalized = f" {normalize_text(problem)} "
@@ -4090,6 +4098,57 @@ def render_evaluation():
     st.write(f"**Sonuç bulunamayan tüm vakalar** {sum(row['no_result'] for row in results)} · **İlk üçteki ilgisiz öneriler** {sum(row['irrelevant_top_3'] for row in results)}")
     st.dataframe(results, hide_index=True)
     st.download_button("Değerlendirme sonuçlarını indir", csv_bytes(results[0].keys(), results), "natureos_test_sonuclari.csv", "text/csv")
+
+
+def render_public_demo():
+    st.header("Ücretsiz demo")
+    examples = {
+        "Su arıtma": "İnce filtre hızla tıkanıyor.",
+        "Ambalaj": "Cam kavanozlarımız kargoda birbirine çarpıp çatlıyor.",
+        "Robotik": "Robot tutucu hassas parçaları eziyor.",
+    }
+    case = st.selectbox("Örnek problem seçin", list(examples))
+    problem = examples[case]
+    st.write(problem)
+    if st.button("Örneği analiz et"):
+        matches = analyze_models(problem)
+        if not matches:
+            st.info("Bu örnek için eşleşme bulunamadı.")
+        for name, group in list(matches.items())[:2]:
+            st.subheader(name)
+            st.write(model_reason(group))
+            for mechanism in group["mechanisms"]:
+                st.write(mechanism["solution"])
+            show_scientific_evidence(name)
+
+
+def render_paid_pilot():
+    st.header("Ücretli kurumsal pilot")
+    st.write(
+        "İşletmenizin bir tasarım problemini birlikte ele alalım. "
+        "Ayşe Meriç Yazıcı, NatureOS önerilerini değerlendirerek işletmenize özel "
+        "bir rapor ve ilk deneme planı hazırlar."
+    )
+    st.write("Kapsam ve fiyat, görüşme sonrasında teklif olarak paylaşılır.")
+    try:
+        email = str(st.secrets.get("NATUREOS_PILOT_EMAIL", "")).strip()
+    except FileNotFoundError:
+        email = ""
+    if re.fullmatch(r"[a-zA-Z0-9._+%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", email):
+        st.markdown(f"[Pilot için e-posta gönder](mailto:{email}?subject=NatureOS%20kurumsal%20pilot)")
+    else:
+        st.info("Pilot başvuruları yakında açılacak.")
+
+
+if os.environ.get("NATUREOS_MODE") != "research":
+    page = st.sidebar.radio("NatureOS", ("Ücretsiz demo", "Ücretli kurumsal pilot", "English demo"))
+    if page == "Ücretli kurumsal pilot":
+        render_paid_pilot()
+    elif page == "English demo":
+        render_english_demo(examples_only=True)
+    else:
+        render_public_demo()
+    st.stop()
 
 
 page = st.sidebar.radio(
