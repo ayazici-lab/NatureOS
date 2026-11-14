@@ -4130,14 +4130,10 @@ def render_paid_pilot():
         "bir rapor ve ilk deneme planı hazırlar."
     )
     st.write("Kapsam ve fiyat, görüşme sonrasında teklif olarak paylaşılır.")
-    try:
-        email = str(st.secrets.get("NATUREOS_PILOT_EMAIL", "")).strip()
-    except FileNotFoundError:
-        email = ""
-    if re.fullmatch(r"[a-zA-Z0-9._+%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", email):
-        st.markdown(f"[Pilot için e-posta gönder](mailto:{email}?subject=NatureOS%20kurumsal%20pilot)")
-    else:
-        st.info("Pilot başvuruları yakında açılacak.")
+    st.markdown(
+        "[Pilot için e-posta gönder]"
+        "(mailto:aysemericyazici@hotmail.com?subject=NatureOS%20kurumsal%20pilot)"
+    )
 
 
 if os.environ.get("NATUREOS_MODE") != "research":
