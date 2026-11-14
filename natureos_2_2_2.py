@@ -4144,6 +4144,7 @@ if os.environ.get("NATUREOS_MODE") != "research":
         render_english_demo(examples_only=True)
     else:
         render_public_demo()
+    st.caption("Her hakkı saklıdır.")
     st.stop()
 
 
