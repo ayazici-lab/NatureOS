@@ -15,6 +15,7 @@ st.set_page_config(
 )
 
 st.title(f"🌿 NatureOS {NATUREOS_VERSION}")
+st.markdown("**Ayşe Meriç Yazıcı**")
 st.subheader("Nature-Inspired Innovation Engine")
 
 st.write(
@@ -3934,6 +3935,7 @@ def render_discovery():
 def render_english_demo():
     st.header("Explore a business problem")
     st.caption("English demo with eight biological models. Enter a problem or try an example.")
+    st.markdown("**Ayşe Meriç Yazıcı**")
     example = st.selectbox("Example", ["Write my own", "The lightweight frame buckles.", "Our robot gripper crushes fragile parts.", "The sensor triggers too easily."])
     problem = st.text_area("Describe the problem", value="" if example == "Write my own" else example, key=f"english_{example}")
     if not st.button("Find biological models"):
