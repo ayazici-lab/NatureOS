@@ -8,6 +8,7 @@ import unicodedata
 import streamlit as st
 
 NATUREOS_VERSION = "2.2.2"
+CONTACT_EMAIL = "natureos.ayaz@gmail.com"
 
 st.set_page_config(
     page_title=f"NatureOS {NATUREOS_VERSION}",
@@ -4184,7 +4185,7 @@ def render_paid_pilot(*, english=False):
         st.write("Kapsam ve fiyat, görüşme sonrasında teklif olarak paylaşılır.")
         label = "Pilot için e-posta gönder"
         subject = "NatureOS%20kurumsal%20pilot"
-    st.markdown(f"[{label}](mailto:aysemericyazici@hotmail.com?subject={subject})")
+    st.markdown(f"[{label}](mailto:{CONTACT_EMAIL}?subject={subject})")
 
 
 if not research_mode:
@@ -4201,7 +4202,12 @@ if not research_mode:
     else:
         render_public_demo()
     notice = "All rights reserved." if english else "Her hakkı saklıdır."
-    st.markdown(f'<footer class="natureos-footer">{notice}</footer>', unsafe_allow_html=True)
+    contact_label = "Contact" if english else "İletişim"
+    st.markdown(
+        f'<footer class="natureos-footer"><p>{contact_label} '
+        f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a></p><p>{notice}</p></footer>',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 
